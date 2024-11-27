@@ -1,0 +1,142 @@
+.app-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    background-color: #f9f1f6;
+    min-height: 100vh;
+    font-family: 'Dancing Script', cursive;
+    
+}
+
+h1 {
+    font-size: 2rem;
+    text-align: center;
+    color: #c49ad0;
+    margin-bottom: 30px; /* Adds space below the title */
+    font-family: 'Pacifico', cursive;
+    transition: transform 0.3s ease;
+
+}
+
+.calendar-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    justify-content: center; 
+    padding: 10px;
+}
+
+
+.month {
+    width: 250px;
+    border: 1px solid #d282d8;;
+    border-radius: 10px;
+    padding: 17px;
+    background-color: #fff;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.month:hover {
+    transform: translateY(-5px); /* Slight hover effect */
+    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15); /* Stronger shadow on hover */
+    /* background: linear-gradient(135deg, #FFEFEF, #FFEFEF);  */
+}
+
+.month h3 {
+    text-align: center;
+    margin-bottom: 10px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #bb8fc0;
+}
+
+.days-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+}
+
+
+.day {
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    border-radius: 77%;
+    cursor: pointer;
+    position: relative; /* Necessary for tooltip positioning */
+    background-color: #fce1e1;
+    transition: transform 0.3s ease, background-color 0.3s ease;
+}
+
+/* Custom Tooltip Styling */
+.day .tooltip {
+    visibility: hidden;
+    position: absolute;
+    top: -25px; /* Positioning above the day block */
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.7); /* Dark background for contrast */
+    color: white;
+    font-size: 10px;
+    padding: 5px;
+    border-radius: 4px;
+    white-space: nowrap;
+    z-index: 10;
+    transition: visibility 0.2s ease-in-out, opacity 0.2s ease-in-out;
+    opacity: 0;
+}
+
+.day:hover .tooltip {
+    visibility: visible;
+    opacity: 1;
+    top: -35px; /* Move the tooltip above the day */
+}
+
+.day:hover {
+    color: white; 
+    border: 1px solid #333;
+}
+
+.heatmap-none {
+    background-color: #F2F2F2;
+}
+
+.heatmap-low {
+    background-color: #F1C6E7;
+}
+
+.heatmap-medium {
+    background-color: #db8ce3;
+}
+
+.heatmap-high {
+    background-color: #BD83CE;
+}
+
+@media (max-width: 768px) {
+    .month {
+        width: 100%;
+    }
+
+    h1 {
+        font-size: 1.5rem;
+    }
+
+    .calendar-container {
+        padding: 10px;
+    }
+
+    .day .tooltip {
+        font-size: 9px; /* Smaller tooltip on small screens */
+        top: -35px; /* Adjust positioning */
+    }
+}
+
+html {
+    scroll-behavior: smooth;
+}
