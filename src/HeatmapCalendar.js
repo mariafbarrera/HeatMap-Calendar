@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from "react";
 import "./HeatmapCalendar.css";
-import watchHistory from "./data/youtube-history.json"; 
+import watchHistory from "./data/youtube-history.json";
 
+
+// GIPHY API Utility
+const API_KEY = process.env.REACT_APP_GIPHY_API_KEY; // Use environment variable for API key
 // Function to process the YouTube watch history
 function processWatchHistory(data, year) {
     const countTimes = {};
@@ -35,6 +38,7 @@ function generateCalendar(year, watchCounts) {
             days.push({
                 day,
                 dayOfWeek: daysOfWeek[date.getDay()],
+                dateString,
                 value: watchCounts[dateString] || 0 // Default to 0 if no data for the day
             });
         }
@@ -53,13 +57,26 @@ const HeatmapCalendar = ({ year }) => {
     const [calendar, setCalendar] = useState([]);
     const [clickedDay, setClickedDay] = useState(null); // State to manage the clicked day
     const [isMobile, setIsMobile] = useState(false); // check if it's a mobile screen
+    const [getGif, setGif] = useState([]);
 
-    useEffect(() => {
+    useEffect( ()=> {
         const watchCounts = processWatchHistory(watchHistory, year);
         const calendarData = generateCalendar(year, watchCounts);
         setCalendar(calendarData);
+        let tags = ["bored", "chill", "moderate binge", "crazy amount"]
+        const fetchGifs = async () => {
+            try {
+                for (const tag of tags) {
+                   let url =  await fetchGif(tag);
+                    addGif(tag, url)
+                }
+            } catch (error) {
+                console.error("Error", error);
+            }
+        };
 
-        // Detect if the screen width is mobile
+        fetchGifs();
+
         const checkMobile = () => {
             setIsMobile(window.innerWidth <= 768); // Breakpoint
         };
@@ -82,6 +99,54 @@ const HeatmapCalendar = ({ year }) => {
         }
     };
 
+    async function fetchGif(tag) {
+        try {
+            // Increase limit to get more variety
+            const response = await fetch(
+                `https://api.giphy.com/v1/gifs/search?api_key=${API_KEY}&q=${tag}&limit=5&rating=g`
+            );
+            const data = await response.json();
+
+            if (data.data && data.data.length > 0) {
+                // Randomly select one GIF from the returned results
+                const randomGif = data.data[Math.floor(Math.random() * data.data.length)];
+                const gifUrl = randomGif.images.downsized.url || "";
+                return gifUrl;
+            }
+            return ""; // Return empty string if no GIFs found
+        } catch (error) {
+            console.error("Error fetching GIF:", error);
+            return ""; // Return empty string if there was an error
+        }
+    }
+
+    const addGif = (type, url) => {
+        const newItem = {"type": type, "url": url};
+        setGif((prevItems) => [...prevItems, newItem]);
+    };
+
+    const findGifByType = (type) => {
+        const foundGif = getGif.find((gif) => gif.type === type);
+        return foundGif || null;
+    };
+
+    const getGifTag = (value) => {
+        if (value > 15) return "crazy amount";
+        if (value > 10) return "moderate binge";
+        if (value >= 1) return "chill";
+        if (value < 1) return "bored";
+    };
+
+    const getGifUrlByTag = (value) => {
+        let gif = findGifByType(getGifTag(value));
+        if (gif && gif.url) {
+            return gif.url;
+        } else {
+            return null;
+        }
+    };
+
+
     return (
         <div className="calendar-container">
             {calendar.map((month, index) => (
@@ -98,7 +163,16 @@ const HeatmapCalendar = ({ year }) => {
                             >
                                 {day.day}
                                 {(clickedDay === day || isMobile) && (
-                                    <div className="tooltip"> Number of Videos Watched: {day.value}</div>
+                                    <div className="tooltip">
+                                        {day.dayOfWeek}, {day.dateString} <br />
+                                        Number of Videos Watched: {day.value}
+                                        {getGifUrlByTag(day.value) &&
+                                            <img
+                                                src={getGifUrlByTag(day.value)}
+                                                alt="Reaction GIF"
+                                                style={{ maxWidth: '150px', width: '100%', height: 'auto' }}
+                                            />}
+                                    </div>
                                 )}
                             </div>
                         ))}
